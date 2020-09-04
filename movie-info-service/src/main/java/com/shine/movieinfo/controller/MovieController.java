@@ -8,7 +8,7 @@ import com.shine.movieinfo.model.Movie;
 
 @RestController
 @RequestMapping("/movies")
-public class MovieResource {
+public class MovieController {
 
     @RequestMapping("/{movieId}")
     public Movie getMovieInfo(@PathVariable("movieId") String movieId) {

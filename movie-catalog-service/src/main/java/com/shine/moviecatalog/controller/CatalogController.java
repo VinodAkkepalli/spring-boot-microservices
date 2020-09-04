@@ -15,7 +15,7 @@ import com.shine.moviecatalog.model.UserRating;
 
 @RestController
 @RequestMapping("/catalog")
-public class CatalogResource {
+public class CatalogController {
 
 //    @Autowired
 //    private RestTemplate restTemplate;
@@ -28,7 +28,7 @@ public class CatalogResource {
 
     	UserRating userRating = webClientBuilder.build()
     			.get()
-    			.uri("http://localhost:8083/ratingsdata/user/" + userId)
+    			.uri("http://ratings-data-service/ratingsdata/user/" + userId)
     			.retrieve()
     			.bodyToMono(UserRating.class)
     			.block();
@@ -39,7 +39,7 @@ public class CatalogResource {
         return userRating.getRatings().stream()
                 .map(rating -> {
                 	Movie movie = webClientBuilder.build().get()
-                			.uri("http://localhost:8082/movies/" + rating.getMovieId())
+                			.uri("http://movie-info-service/movies/" + rating.getMovieId())
                 			.retrieve()
                 			.bodyToMono(Movie.class)
                 			.block();      
