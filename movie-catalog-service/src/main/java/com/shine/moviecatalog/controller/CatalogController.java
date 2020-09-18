@@ -10,43 +10,30 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.shine.moviecatalog.model.CatalogItem;
-import com.shine.moviecatalog.model.Movie;
 import com.shine.moviecatalog.model.UserRating;
+import com.shine.moviecatalog.service.MovieInfoDataService;
+import com.shine.moviecatalog.service.RatingInfoDataService;
 
 @RestController
 @RequestMapping("/catalog")
 public class CatalogController {
 
-//    @Autowired
-//    private RestTemplate restTemplate;
-
     @Autowired
     WebClient.Builder webClientBuilder;
+    
+    @Autowired
+    MovieInfoDataService movieInfoDataService;
+    
+    @Autowired
+    RatingInfoDataService ratingInfoDataService;
 
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
 
-    	UserRating userRating = webClientBuilder.build()
-    			.get()
-    			.uri("http://ratings-data-service/ratingsdata/user/" + userId)
-    			.retrieve()
-    			.bodyToMono(UserRating.class)
-    			.block();
+    	UserRating userRating = ratingInfoDataService.getUserRating(userId);
     	
-    	//Way to use RestTemplate for the same service call
-//        UserRating userRating = restTemplate.getForObject("http://localhost:8083/ratingsdata/user/" + userId, UserRating.class);
-
-        return userRating.getRatings().stream()
-                .map(rating -> {
-                	Movie movie = webClientBuilder.build().get()
-                			.uri("http://movie-info-service/movies/" + rating.getMovieId())
-                			.retrieve()
-                			.bodyToMono(Movie.class)
-                			.block();      
-                	
-                    return new CatalogItem(movie.getName(), movie.getDescription(), rating.getRating());
-                })
+    	return userRating.getRatings().stream()
+                .map(rating -> movieInfoDataService.getCatalogItem(rating))
                 .collect(Collectors.toList());
-
-    }
+    }	
 }
